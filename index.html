@@ -85,6 +85,7 @@
   <nav>
     <a href="#tentang">Tentang</a>
     <a href="#video">Video</a>
+    <a href="#jadwal-sholat">Jadwal Sholat</a>
     <a href="#kontak">Kontak</a>
   </nav>
 
@@ -107,15 +108,78 @@
     </div>
   </section>
 
+  <section id="jadwal-sholat">
+    <h2 class="section-title">🕌 Jadwal Sholat Hari Ini - Jakarta</h2>
+    <div id="sholat-card" style="
+      max-width: 500px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0, 105, 92, 0.2);
+      padding: 20px;
+      text-align: center;
+    ">
+      <p id="current-time" style="font-size: 18px; font-weight: 600; color: #004d40; margin-bottom: 20px;"></p>
+      <ul id="sholat-times" style="
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        font-size: 16px;
+        color: #333;
+      "></ul>
+    </div>
+  </section>
+
   <section id="kontak">
-  <h2 class="section-title">Hubungi Kami</h2>
-  <p>Email: <a href="mailto:ahlan2102@gmail.com">ahlan2102@gmail.com</a></p>
-  <p>TikTok: <a href="https://www.tiktok.com/@ahlan_family" target="_blank">@ahlan_family</a></p>
-  <p>YouTube: <a href="https://www.youtube.com/@ahlan_family" target="_blank">@ahlan_family</a></p>
-</section>
+    <h2 class="section-title">Hubungi Kami</h2>
+    <p>Email: <a href="mailto:ahlan2102@gmail.com">ahlan2102@gmail.com</a></p>
+    <p>TikTok: <a href="https://www.tiktok.com/@ahlan_family" target="_blank">@ahlan_family</a></p>
+    <p>YouTube: <a href="https://www.youtube.com/@ahlan_family" target="_blank">@ahlan_family</a></p>
+  </section>
 
   <footer>
     <p>&copy; 2025 Ahlan Channel. Dakwah dengan Cinta dan Hikmah.</p>
   </footer>
+
+  <script>
+    // Live Clock
+    function updateClock() {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString("id-ID", {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+      document.getElementById("current-time").textContent = "Waktu sekarang: " + timeStr;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Jadwal Sholat, Imsak, Terbit, Hijriah
+    fetch("https://api.aladhan.com/v1/timingsByCity?city=Jakarta&country=Indonesia&method=2")
+      .then(response => response.json())
+      .then(data => {
+        const times = data.data.timings;
+        const hijri = data.data.date.hijri;
+        const list = document.getElementById("sholat-times");
+
+        const labels = {
+          Imsak: "Imsak",
+          Sunrise: "Terbit",
+          Fajr: "Subuh",
+          Dhuhr: "Dzuhur",
+          Asr: "Ashar",
+          Maghrib: "Maghrib",
+          Isha: "Isya"
+        };
+
+        let content = `<li style="margin-bottom:12px; color:#004d40;"><strong>📅 ${hijri.day} ${hijri.month.en} ${hijri.year} H</strong></li>`;
+        for (const key of ["Imsak", "Sunrise", "Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"]) {
+          content += `<li style="margin: 6px 0;"><strong>${labels[key]}</strong>: ${times[key]}</li>`;
+        }
+
+        list.innerHTML = content;
+      });
+  </script>
 </body>
 </html>
