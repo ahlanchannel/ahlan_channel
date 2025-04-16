@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Ahlan Channel - Dakwah Islami</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
@@ -118,6 +118,7 @@
   <section id="jadwal-sholat">
     <h2 class="section-title">Jadwal Sholat Hari Ini - Jakarta</h2>
     <p id="current-date"></p>
+    <p id="hijri-date"></p>
     <div id="sholat-card">
       <ul id="sholat-times"></ul>
       <div style="margin-top: 20px;">
@@ -127,8 +128,8 @@
           <option value="bedug">Bedug</option>
         </select>
         <button onclick="playSound()">Putar Suara</button>
-        <audio id="adzan-sound" src="https://archive.org/download/adzan_202104/Adzan.mp3"></audio>
-        <audio id="bedug-sound" src="https://archive.org/download/bedug-masjid/Bedug.mp3"></audio>
+        <audio id="adzan-sound" src="audio/adzan.mp3"></audio>
+        <audio id="bedug-sound" src="audio/bedug.mp3"></audio>
       </div>
     </div>
   </section>
@@ -151,6 +152,21 @@
       const now = new Date();
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
       document.getElementById('current-date').textContent = now.toLocaleDateString('id-ID', options);
+    }
+
+    async function fetchHijriDate() {
+      try {
+        const today = new Date();
+        const timestamp = Math.floor(today.getTime() / 1000);
+        const response = await fetch(`https://api.aladhan.com/v1/gToH?timestamp=${timestamp}`);
+        const data = await response.json();
+        const hijri = data.data.hijri;
+        document.getElementById('hijri-date').textContent =
+          `Tanggal Hijriyah: ${hijri.weekday.ar} - ${hijri.day} ${hijri.month.ar} ${hijri.year} H`;
+      } catch (err) {
+        document.getElementById('hijri-date').textContent = "Gagal memuat tanggal hijriyah.";
+        console.error(err);
+      }
     }
 
     async function fetchSholatTimes() {
@@ -182,10 +198,8 @@
       const selectedSound = document.getElementById('sound-select').value;
       const adzanAudio = document.getElementById('adzan-sound');
       const bedugAudio = document.getElementById('bedug-sound');
-      adzanAudio.pause();
-      bedugAudio.pause();
-      adzanAudio.currentTime = 0;
-      bedugAudio.currentTime = 0;
+      adzanAudio.pause(); bedugAudio.pause();
+      adzanAudio.currentTime = 0; bedugAudio.currentTime = 0;
       if (selectedSound === 'adzan') {
         adzanAudio.play();
       } else {
@@ -205,6 +219,7 @@
     }
 
     updateDate();
+    fetchHijriDate();
     fetchSholatTimes();
     setInterval(checkPrayerTime, 60000);
   </script>
